@@ -117,8 +117,10 @@ int my_aes_encrypt(const unsigned char *source, uint32 source_length,
   unsigned char rkey[MAX_AES_KEY_LENGTH / 8];
   my_aes_create_key(key, key_length, rkey, mode);
 
-  if (!cipher || (EVP_CIPHER_iv_length(cipher) > 0 && !iv))
-    goto aes_error;
+  if (!cipher || (EVP_CIPHER_iv_length(cipher) > 0 && !iv)) {
+    EVP_CIPHER_CTX_free(ctx);
+    return MY_AES_BAD_DATA;
+  }
 
   if (!EVP_EncryptInit(ctx, cipher, rkey, iv))
     goto aes_error;                             /* Error */
@@ -157,8 +159,10 @@ int my_aes_decrypt(const unsigned char *source, uint32 source_length,
   unsigned char rkey[MAX_AES_KEY_LENGTH / 8];
 
   my_aes_create_key(key, key_length, rkey, mode);
-  if (!cipher || (EVP_CIPHER_iv_length(cipher) > 0 && !iv))
-    goto aes_error;
+  if (!cipher || (EVP_CIPHER_iv_length(cipher) > 0 && !iv)) {
+    EVP_CIPHER_CTX_free(ctx);
+    return MY_AES_BAD_DATA;
+  }
 
   EVP_CIPHER_CTX_init(ctx);
 
